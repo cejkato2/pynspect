@@ -181,11 +181,18 @@ class PynspectFilterParser():
     query language grammar used in Mentat project.
     """
 
-    def __init__(self):
+    def __init__(self, silent=True):
+        """
+        Constructor of the object
+
+            silent:
+                If True, yacc won't print anything, default is True
+        """
         self.logger = None
         self.lexer  = None
         self.tokens = None
         self.parser = None
+        self.silent = silent
 
     def build(self):
         """
@@ -203,15 +210,25 @@ class PynspectFilterParser():
         #
         self.tokens = self.lexer.tokens[1:]
 
-        self.parser = ply.yacc.yacc(
-            module=self,
-            #debuglog=self.logger,
-            errorlog=self.logger
-            #start='statements',
-            #debug=yacc_debug,
-            #optimize=yacc_optimize,
-            #tabmodule=yacctab
-        )
+        if self.silent == False:
+            # Write into errorlog using self.logger
+            self.parser = ply.yacc.yacc(
+                module=self,
+                #debuglog=self.logger,
+                errorlog=self.logger
+                #start='statements',
+                #debug=yacc_debug,
+                #optimize=yacc_optimize,
+                #tabmodule=yacctab
+            )
+        else:
+            # Do not print anything in silent mode
+            self.parser = ply.yacc.yacc(
+                module=self,
+                debug=None,
+                debuglog=None,
+                errorlog=None
+            )
 
     def parse(self, data, filename='', debuglevel=0):
         """
